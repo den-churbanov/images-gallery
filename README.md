@@ -1,8 +1,8 @@
 # _Images-Gallery_
 
-##_Demo: [here]()_
+## _Demo: [here]()_
 
-##_History of my way solution:_
+## _How I came to my solution:_
 
 The task turned out to be much more difficult than I thought.
 
