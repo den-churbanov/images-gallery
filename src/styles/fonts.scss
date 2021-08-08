@@ -1,0 +1,50 @@
+@import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Work+Sans&display=swap');
+
+html{
+    font-family: 'Roboto', sans-serif;
+}
+
+:root {
+    font-size: calc(22px + 5 * (100vw / 1280));
+}
+
+@media (max-width: 767px) {
+    :root {
+        font-size: calc(22px + (5 + 5 * 0.7) * (100vw - 320px) / 1280);
+    }
+}
+
+h1 {
+    font-size: 1rem;
+    font-family: 'Work Sans', sans-serif;
+}
+
+h2 {
+    font-size: 0.9rem;
+}
+
+h3 {
+    font-size: 0.8rem;
+}
+
+h4 {
+    font-size: 0.7rem;
+}
+
+p {
+    font-size: 0.7rem;
+}
+
+input[type="button"], button {
+    font-size: 0.6rem;
+}
+
+input[type="text"], span {
+    font-size: 0.55rem;
+}
+
+a {
+    font-size: 0.5rem;
+    font-weight: bold;
+}

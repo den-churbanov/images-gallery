@@ -1,0 +1,303 @@
+
+%hide {
+    display: none;
+    opacity: 0;
+    visibility: hidden;
+}
+
+.drop_area {
+    border-radius: 10px;
+    margin: 10px;
+    min-height: 100px;
+    width: 100%;
+    border: 3px dashed $primary;
+    font-weight: bold;
+    color: $primary;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.btn {
+    color: $primary;
+    position: relative;
+    border-radius: 99px;
+    border: 2px solid $primary;
+    font-size: 0.5rem;
+    letter-spacing: 0.04rem;
+    text-decoration: none;
+    text-transform: uppercase;
+    padding: .35rem 0.95rem 0.3rem;
+    font-weight: 600;
+    width: 30%;
+    min-width: 120px;
+    max-width: 140px;
+    outline: none;
+    background: #fff;
+    cursor: pointer;
+    margin-right: 1rem;
+    margin-top: 0.5rem;
+    
+    @media screen and (max-width: $breakpoint-sm) {
+        margin-right: 0.2rem;
+    }
+    
+    &_primary {
+        background: $primary;
+        color: #fff;
+    }
+    
+    &:active {
+        box-shadow: inset 2px 2px 3px rgba(0, 0, 0, .3);
+    }
+    
+    &:hover {
+        cursor: pointer;
+        opacity: 0.8;
+    }
+}
+
+.input_form {
+    display: block;
+    box-sizing: border-box;
+    width: 30vw;
+    min-width: 200px;
+    max-width: 250px;
+    position: relative;
+    padding: 15px 0 0;
+    
+    @media screen and (max-width: $breakpoint-md) {
+        width: 33vw;
+        
+        &__group {
+            width: 100%;
+        }
+        button.btn {
+            width: 100%;
+        }
+    }
+    
+    @media screen and (max-width: $breakpoint-sm) {
+        width: 50vw;
+    }
+    
+    &__input {
+        width: 100%;
+        border: 0;
+        border-bottom: 2px solid $primary;
+        outline: 0;
+        font-size: 0.6rem;
+        letter-spacing: 0.05em;
+        color: $primary;
+        padding: 7px 0;
+        background: transparent;
+        transition: border-color 0.2s;
+        
+        &::placeholder {
+            color: transparent;
+        }
+        
+        &:placeholder-shown ~ .input_form__label {
+            user-select: none;
+            font-size: 0.55rem;
+            cursor: text;
+            top: 27px;
+        }
+    }
+    
+    &__label {
+        position: absolute;
+        top: 5px;
+        display: block;
+        transition: 0.2s;
+        font-size: 0.5rem;
+        letter-spacing: 0.1em;
+        color: $primary;
+    }
+    
+    &__input:focus {
+        ~ .input_form__label {
+            position: absolute;
+            top: 5px;
+            display: block;
+            transition: 0.2s;
+            font-size: 0.5rem;
+        }
+    }
+    
+    &__input {
+        &:required, &:invalid {
+            box-shadow: none;
+        }
+    }
+}
+
+.upload_card {
+    margin: 0 auto;
+    box-sizing: border-box;
+    border-radius: 10px;
+    background: #fff;
+    box-shadow: 3px 3px 6px rgba(0, 0, 0, .2);
+    display: flex;
+    width: 95%;
+    
+    &__wrapper {
+        width: 100%;
+        padding: 0.6rem 0.7rem;
+        
+        .loading {
+            letter-spacing: 0.04rem;
+            display: block;
+            padding: .3rem;
+            margin-top: .3rem;
+            color: $primary;
+            font-weight: bold;
+        }
+    }
+    
+    input[type="file"] {
+        @extend %hide;
+    }
+    
+    .previews_container {
+        min-width: 100%;
+        box-sizing: border-box;
+        margin-top: 0.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        flex-flow: wrap row;
+        max-height: 70vh;
+        overflow-y: scroll;
+    
+        &::-webkit-scrollbar-track-piece {
+            background: $ice-blue;
+            border-radius: 3px;
+        }
+    
+        &::-webkit-scrollbar-thumb {
+            background-color: $primary;
+            border-radius: 3px;
+        }
+    
+        &::-webkit-scrollbar {
+            display: block;
+            width: 3px;
+        }
+        
+        .preview_item {
+            position: relative;
+            box-sizing: border-box;
+            height: auto;
+            margin-bottom: 0.5%;
+            margin-right: 1%;
+            overflow: hidden;
+            
+            @media screen and (max-width: $breakpoint-xs) {
+            
+            }
+            
+            @media screen and (max-width: $breakpoint-sm) {
+            
+            }
+            @media screen and (max-width: $breakpoint-md) {
+            
+            }
+            @media screen and (max-width: $breakpoint-lg) {
+            
+            }
+            @media screen and (min-width: $breakpoint-xl) {
+            
+            }
+            
+            &__remove {
+                opacity: 0;
+                width: 20px;
+                height: 20px;
+                position: absolute;
+                right: 0;
+                top: 0;
+                font-size: 19px;
+                font-weight: bold;
+                background: rgba(255, 255, 255, .5);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                cursor: pointer;
+                transition: opacity .22s;
+            }
+            
+            &__info {
+                box-sizing: border-box;
+                position: absolute;
+                right: 0;
+                bottom: -30px;
+                left: 0;
+                height: 25px;
+                background: rgba(255, 255, 255, .5);
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 0 5px;
+                transition: bottom .22s;
+                
+                &_upload {
+                    font-size: 0.45rem;
+                    bottom: 0;
+                }
+                
+                span {
+                    font-size: 0.45rem;
+                    overflow: hidden;
+                    user-select: none;
+                    cursor: auto;
+                }
+                
+                .preview-info-progress {
+                    position: absolute;
+                    left: 0;
+                    top: 0;
+                    bottom: 0;
+                    background: $primary;
+                    transition: width .22s;
+                    width: 100%;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+            }
+            
+            &.delete-animation {
+                transform: scale(0);
+                transition: all 300ms ease-out;
+            }
+            
+            &:hover {
+                .preview_item__remove {
+                    opacity: 1;
+                }
+                
+                .preview_item__info {
+                    bottom: 0;
+                }
+            }
+            
+            img {
+                max-width: 100%;
+            }
+        }
+    }
+}
+
+
+@media (max-width: 780px) {
+    .preview_item {
+        &__remove {
+            opacity: 1 !important;
+        }
+        
+        &__info {
+            bottom: 0 !important;
+        }
+    }
+}

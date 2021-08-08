@@ -1,0 +1,60 @@
+@import "null";
+@import "colors";
+@import "fonts";
+
+$min-container-width: 320px;
+$max-container-width: 860px;
+
+$breakpoint-xs: 320px;
+$breakpoint-sm: 576px;
+$breakpoint-md: 768px;
+$breakpoint-lg: 992px;
+$breakpoint-xl: 1200px;
+
+body {
+    width: 100vw;
+    height: auto;
+    min-height: 100vh;
+    background: #666;
+    overflow-x: hidden;
+}
+
+#page {
+    width: 100%;
+    height: auto;
+    min-height: 100vh;
+}
+
+.page_container {
+    width: 100%;
+    min-width: $min-container-width;
+    max-width: $max-container-width;
+    margin: 0 auto;
+}
+
+h1.title{
+    color: $ice-blue;
+    letter-spacing: 0.09rem;
+    font-size: 1.5rem;
+    padding-top: 2rem;
+    padding-bottom: 1.6rem;
+    margin: 0 auto;
+    text-align: center;
+    position: relative;
+    overflow: visible;
+    
+    &:before{
+        content: "";
+        position: absolute;
+        width: 120px;
+        height: 3px;
+        background: $ice-blue;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        border-radius: 99px;
+    }
+}
+
+@import "file_uploader";
+@import "gallery";
