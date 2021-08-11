@@ -1,4 +1,5 @@
 import {PreviewsType} from './types'
+import React from 'react'
 
 const readFile = (file: Blob) =>
     new Promise((resolve, reject) => {
@@ -13,7 +14,7 @@ const readFile = (file: Blob) =>
         reader.readAsDataURL(file)
     })
 
-const bytesToSize = function (bytes: number) {
+export const bytesToSize = function (bytes: number) {
     const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB']
     if (!bytes) return '0 Byte'
     const i = Math.floor(Math.log(bytes) / Math.log(1024))
@@ -21,8 +22,9 @@ const bytesToSize = function (bytes: number) {
 }
 
 export const readAllFiles = (files: FileList | Array<File>,
+                             setPreviews:React.Dispatch<React.SetStateAction<Array<PreviewsType>>>,
                              startLoading: (length: number) => void,
-                             endLoading: (previews: Array<PreviewsType>) => void) => {
+                             endLoading: () => void) => {
     if (files instanceof Object)
         files = Array.from(files)
     startLoading(files.length)
@@ -31,16 +33,16 @@ export const readAllFiles = (files: FileList | Array<File>,
         if (!file.type.match('image')) return
         promises.push(readFile(file))
     })
-    let previews: Array<PreviewsType> = []
     Promise.all(promises).then(readers => {
         readers.forEach((reader, idx) => {
-            previews.push({
+            setPreviews(prevState => [...prevState,{
                 buffer: reader.buffer,
                 name: reader.file.name,
                 size: bytesToSize(reader.file.size),
                 idx
-            })
+            }])
         })
-        endLoading(previews)
+        endLoading()
     })
 }
+

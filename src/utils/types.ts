@@ -1,4 +1,4 @@
-import React from "react";
+import React from 'react'
 
 export type PreviewsType = {
     buffer: string,
@@ -11,6 +11,16 @@ export type UploaderProps = {
     accept?: Array<string>,
     onUpload: (files: Array<File>,
                showUploadProgress: (idx: number, progress: number) => void) => void
+}
+
+export type onEnteredHandlerType = (node: HTMLElement, isAppearing: boolean) => void
+export type onExitedHandlerType = (node: HTMLElement) => void
+
+export type UrlPreviewType = {
+    url: string,
+    name: string,
+    size: number,
+    idx: number
 }
 
 export type ImagePreviewPropsType = {

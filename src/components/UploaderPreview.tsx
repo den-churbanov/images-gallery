@@ -8,7 +8,7 @@ type ImagePreviewType = {
     idx: number
 } | null
 
-export const ImagePreview: React.FC<ImagePreviewPropsType> = ({
+export const UploaderPreview: React.FC<ImagePreviewPropsType> = ({
                                                                   buffer,
                                                                   name,
                                                                   size,
@@ -29,15 +29,14 @@ export const ImagePreview: React.FC<ImagePreviewPropsType> = ({
     }, [buffer, setImage])
 
     if (!image) return null
-
     return (
         <div className="preview_item">
+            <img className="preview_item__image" src={image.buffer} alt={image.name}/>
             {
                 !upload &&
                 <div className="preview_item__remove"
                      onClick={event => deleteFile(event, idx)}>&times;</div>
             }
-            <img className="preview_item__image" src={image.buffer} alt={image.name}/>
             {
                 upload ?
                     <div className="preview_item__info preview_item__info_upload">

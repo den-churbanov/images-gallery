@@ -1,4 +1,4 @@
-import React, {useEffect} from 'react'
+import React from 'react'
 import './styles/app.css'
 import {FileUploader} from './components/FileUploader'
 import {Gallery} from './components/Gallery'
@@ -42,22 +42,11 @@ function onUpload(files: Array<File>,
 
 export const App: React.FC = () => {
 
-    // useEffect(() => {
-    //     const ref = storage.ref('./images/*')
-    //     const task = ref.getDownloadURL().then(res=>console.log(res))
-    //     // task.on('state_changed',
-    //     //     snapshot => {
-    //     //         const percentage = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100)
-    //     //         showUploadProgress(idx, percentage)
-    //     //     }, error => {
-    //     //         alert(error);
-    //     //     })
-    // }, [])
     return (
         <div className="page_container">
             <h1 className="title">Gallery</h1>
             <FileUploader onUpload={onUpload}/>
-            <Gallery/>
+            <Gallery storage = {storage}/>
         </div>
     )
 }

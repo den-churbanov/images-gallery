@@ -1,14 +1,18 @@
-import React, {useCallback, useEffect, useLayoutEffect, useRef, useState} from 'react'
-import {PreviewsType, UploaderProps} from '../utils/types'
+import React, {useCallback, useEffect, useRef, useState} from 'react'
+import {
+    onEnteredHandlerType,
+    onExitedHandlerType,
+    PreviewsType,
+    UploaderProps
+} from '../utils/types'
 import {readAllFiles} from '../utils/utils'
-import {ImagePreview} from './ImagePreview'
-import {Gallery as AdaptivePlugin} from '../utils/gallery-adaptive'
+import {UploaderPreview} from './UploaderPreview'
+import {useAdaptiveImages} from '../hooks/images.adaptive.hook'
+import {CSSTransition, TransitionGroup} from 'react-transition-group'
+import {BaseTransitionProps} from "react-transition-group/Transition";
 
 const acceptDefault = ['.png', '.jpg', 'jpeg', '.gif', ".json"]
-type pluginType = {
-    perform: () => void
-    destroy: () => void
-} | null
+
 export const FileUploader: React.FC<UploaderProps> = ({accept = acceptDefault, onUpload}) => {
     const [files, setFiles] = useState<Array<File>>([])
     const [previews, setPreviews] = useState<Array<PreviewsType>>([])
@@ -16,7 +20,6 @@ export const FileUploader: React.FC<UploaderProps> = ({accept = acceptDefault, o
         state: false,
         count: 0
     })
-    const [perform, setPerform] = useState(false)
     const [upload, setUpload] = useState(false)
     const [uploadProgress, setUploadProgress] = useState<Array<number>>([])
     const [dragEnter, setDragEnter] = useState(false)
@@ -24,17 +27,9 @@ export const FileUploader: React.FC<UploaderProps> = ({accept = acceptDefault, o
     const urlInput = useRef<HTMLInputElement>(null)
     const uploadBtn = useRef<HTMLButtonElement>(null)
     const openBtn = useRef<HTMLButtonElement>(null)
-    let plugin: pluginType = null
+    const container = useRef<HTMLDivElement>(null)
 
-    useLayoutEffect(() => {
-        setPerform(prev=>!prev)
-        plugin = AdaptivePlugin('.previews_container', '.preview_item', '.preview_item__image')
-        plugin.perform()
-    }, [loading, previews.length])
-
-    useEffect(()=>{
-        plugin&& plugin.perform()
-    },[perform])
+    const {performanceImagesGrid, renderGridAfterDeleteImage} = useAdaptiveImages(container)
 
     useEffect(() => {
         let x = 0
@@ -62,21 +57,15 @@ export const FileUploader: React.FC<UploaderProps> = ({accept = acceptDefault, o
         event.preventDefault()
         if (event.target.files && event.target.files.length) {
             setFiles(Array.from(event.target.files))
-            readAllFiles(event.target.files, startLoading, endLoading)
+            readAllFiles(event.target.files, setPreviews, startLoading, endLoading)
         }
     }
 
     const deleteFile = useCallback((event: React.MouseEvent<HTMLDivElement>, id: number) => {
-        const preview = event.target.parentNode
-        preview.classList.add('delete-animation')
         const newPreviews = previews.filter((_, idx) => idx !== id)
         const newFiles = files.filter((_, idx) => idx !== id)
-        setTimeout(() => {
-            setFiles(newFiles)
-            preview.classList.remove('delete-animation')
-            setPreviews(newPreviews)
-            plugin&& plugin.perform()
-        }, 300)
+        setPreviews(newPreviews)
+        setFiles(newFiles)
     }, [files, previews])
 
     //drag-and-drop handlers
@@ -90,7 +79,7 @@ export const FileUploader: React.FC<UploaderProps> = ({accept = acceptDefault, o
     }
     const dropHandler = (event: React.DragEvent) => {
         event.preventDefault()
-        readAllFiles(event.dataTransfer.files, startLoading, endLoading)
+        // readAllFiles(event.dataTransfer.files, startLoading, endLoading)
         setDragEnter(false)
     }
 
@@ -101,8 +90,7 @@ export const FileUploader: React.FC<UploaderProps> = ({accept = acceptDefault, o
         })
     }
 
-    function endLoading(previews: Array<PreviewsType>) {
-        setPreviews(previews)
+    function endLoading() {
         setLoading({
             state: false,
             count: 0
@@ -112,7 +100,6 @@ export const FileUploader: React.FC<UploaderProps> = ({accept = acceptDefault, o
     const uploadFiles = () => {
         //call function to upload files
         onUpload(files, showUploadProgress)
-
         setUpload(true)
         //disable Upload Btn on Upload
         if (uploadBtn.current) uploadBtn.current.disabled = true
@@ -124,6 +111,15 @@ export const FileUploader: React.FC<UploaderProps> = ({accept = acceptDefault, o
             newState[idx] = progress
             return newState
         })
+    }
+
+    const onEnteredHandler: onEnteredHandlerType = () => {
+        if (!container.current) return
+        performanceImagesGrid(container.current.childNodes)
+    }
+
+    const onExitedHandler: onExitedHandlerType = (node)=>{
+        renderGridAfterDeleteImage((node.firstChild as HTMLImageElement).alt)
     }
 
     return (
@@ -170,27 +166,35 @@ export const FileUploader: React.FC<UploaderProps> = ({accept = acceptDefault, o
                                         ref={uploadBtn}>
                                     Upload
                                 </button>
-                                <div className="previews_container">
-                                    {previews.map((file, idx) =>
-                                        <ImagePreview buffer={file.buffer}
-                                                      name={file.name}
-                                                      size={file.size}
-                                                      upload={upload}
-                                                      progress={uploadProgress[idx]}
-                                                      idx={idx}
-                                                      key={idx + file.idx}
-                                                      deleteFile={deleteFile}
-                                        />
-                                    )}
-                                </div>
                             </>
                             :
                             loading.state ?
                                 <span className="loading">
-                                        {`File${loading.count > 1 ? 's are uploading' : ' is uploading'}...`}
-                                    </span> :
+                                    {`File${loading.count > 1 ? 's are uploading' : ' is uploading'}...`}
+                                </span> :
                                 null
                         }
+                        <div className="previews_container" ref={container}>
+                            <TransitionGroup component={null}>
+                                {previews.length && previews.map((image, idx) =>
+                                    <CSSTransition key={image.idx}
+                                                   timeout={300}
+                                                   unmountOnExit={true}
+                                                   onEntered={onEnteredHandler}
+                                                   onExited={onExitedHandler}
+                                                   classNames="preview_item_animation">
+                                        <UploaderPreview buffer={image.buffer}
+                                                         name={image.name}
+                                                         size={image.size}
+                                                         upload={upload}
+                                                         progress={uploadProgress[idx]}
+                                                         idx={idx}
+                                                         key={image.idx}
+                                                         deleteFile={deleteFile}/>
+                                    </CSSTransition>
+                                )}
+                            </TransitionGroup>
+                        </div>
                     </div>
             }
         </div>
