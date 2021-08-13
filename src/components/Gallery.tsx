@@ -1,4 +1,4 @@
-import React, {useRef} from 'react'
+import React, {useEffect, useRef} from 'react'
 import {GalleryPreview} from './GalleryPreview'
 import {
     GalleryFileImage,
@@ -9,9 +9,9 @@ import {
 import {useAdaptiveImages} from '../hooks/images.adaptive.hook'
 import {CSSTransition, TransitionGroup} from 'react-transition-group'
 
-interface GalleryProps  {
+interface GalleryProps {
     images: Array<GalleryUrlImage | GalleryFileImage>,
-    deleteImage: (e:React.MouseEvent, id: string) => void
+    deleteImage: (e: React.MouseEvent, id: string) => void
 }
 
 export const Gallery: React.FC<GalleryProps> = ({images, deleteImage}) => {
@@ -23,10 +23,16 @@ export const Gallery: React.FC<GalleryProps> = ({images, deleteImage}) => {
         performanceImagesGrid(container.current.childNodes)
     }
 
+    useEffect(() => {
+        if (container.current)
+            performanceImagesGrid(container.current.childNodes)
+    }, [container.current?.childNodes.length])
+
     const onExitedHandler: onExitedHandlerType = (node) => {
         renderGridAfterDeleteImage((node.firstChild as HTMLImageElement).alt)
     }
 
+    console.log('Gallery rendered')
     return (
         <div className="gallery_container">
             <div className="gallery_container__wrapper">
