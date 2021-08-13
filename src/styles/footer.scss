@@ -1,0 +1,92 @@
+footer.footer {
+    @include box-mixin;
+    margin-top: 0.2rem;
+    padding: 0.3rem;
+    justify-content: center;
+}
+
+.social__column {
+    padding-top: 0.2rem;
+    display: flex;
+    flex-flow: column nowrap;
+    align-items: center;
+    
+    span {
+        color: $primary;
+        white-space: nowrap;
+        display: block;
+        font: 0.5rem "Work Sans";
+        letter-spacing: 0.15em;
+        text-transform: uppercase;
+    }
+    
+    ul.social-menu {
+        display: flex;
+        list-style: none;
+        padding: 0;
+        
+        li {
+            display: inline-block;
+            margin: 0.25rem;
+            
+            a {
+                display: flex;
+                height: 1rem;
+                width: 1rem;
+                padding: 0.15rem;
+                border-radius: 40px;
+                background-color: $primary;
+                -webkit-transition: all 0.2s ease;
+                -o-transition: all 0.2s ease;
+                transition: all ease 0.2s;
+                
+                .social-icon {
+                    margin: 0 auto;
+                    width: 80%;
+                    height: auto;
+                    fill: #fff;
+                }
+                
+                &:hover, &:active {
+                    .social-icon {
+                        fill: #fff;
+                    }
+                }
+                
+                &.linkedin-icon{
+                    background-color: $linkedin-icon-color;
+                    
+                    .social-icon {
+                        width: 100%;
+                    }
+                }
+                
+                &.phone-icon {
+                    background-color: $phone-icon-color;
+                    
+                    .social-icon {
+                        width: 70%;
+                    }
+                }
+                
+                &.gmail-icon {
+                    background-color: $gmail-icon-color;
+                }
+                
+                &.tg-icon {
+                    background-color: $tg-icon-color;
+                }
+                
+                &.vk-icon {
+                    background-color: $vk-icon-color;
+                }
+                
+                &.ig-icon {
+                    background: $ig-icon-col-default;
+                    background: $ig-icon-color;
+                }
+                
+            }
+        }
+    }
+}

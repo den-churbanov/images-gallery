@@ -1,72 +1,81 @@
-import React, {useCallback, useEffect, useRef, useState} from 'react'
+import React, {useRef, useState} from 'react'
+import validator from 'validator'
 import {
-    onEnteredHandlerType,
-    onExitedHandlerType,
-    PreviewsType,
-    UploaderProps
+    ImgData,
+    JsonImage,
 } from '../utils/types'
 import {readAllFiles} from '../utils/utils'
-import {UploaderPreview} from './UploaderPreview'
-import {useAdaptiveImages} from '../hooks/images.adaptive.hook'
-import {CSSTransition, TransitionGroup} from 'react-transition-group'
-import {BaseTransitionProps} from "react-transition-group/Transition";
+import {useHttp} from '../hooks/http.hook'
+import {Alert} from './Alert'
 
-const acceptDefault = ['.png', '.jpg', 'jpeg', '.gif', ".json"]
+const acceptDefault = ['.jpeg', '.jpg']
 
-export const FileUploader: React.FC<UploaderProps> = ({accept = acceptDefault, onUpload}) => {
-    const [files, setFiles] = useState<Array<File>>([])
-    const [previews, setPreviews] = useState<Array<PreviewsType>>([])
-    const [loading, setLoading] = useState({
-        state: false,
-        count: 0
-    })
-    const [upload, setUpload] = useState(false)
-    const [uploadProgress, setUploadProgress] = useState<Array<number>>([])
+interface UploaderProps {
+    addImage: (image: ImgData) => void,
+    accept?: Array<string>
+}
+
+export const FileUploader: React.FC<UploaderProps> = ({accept = acceptDefault, addImage}) => {
+    const [loading, setLoading] = useState(false)
+    const [error, setError] = useState<string | null>(null)
+    const [url, setUrl] = useState('')
     const [dragEnter, setDragEnter] = useState(false)
     const fileInput = useRef<HTMLInputElement>(null)
-    const urlInput = useRef<HTMLInputElement>(null)
-    const uploadBtn = useRef<HTMLButtonElement>(null)
     const openBtn = useRef<HTMLButtonElement>(null)
-    const container = useRef<HTMLDivElement>(null)
+    const downloadBtn = useRef<HTMLButtonElement>(null)
 
-    const {performanceImagesGrid, renderGridAfterDeleteImage} = useAdaptiveImages(container)
-
-    useEffect(() => {
-        let x = 0
-        uploadProgress.map(i => x += i)
-        if (openBtn.current)
-            if (x === files.length * 100) {
-                openBtn.current.disabled = false
-            } else {
-                if (!openBtn.current.disabled)
-                    openBtn.current.disabled = true
-            }
-    }, [uploadProgress])
+    const {request} = useHttp()
 
     const openBtnHandler = (event: React.MouseEvent) => {
         event.preventDefault()
-        setFiles([])
-        setPreviews([])
-        setUpload(false)
-        setUploadProgress(new Array(files.length).fill(0))
-        if (uploadBtn.current) uploadBtn.current.disabled = false
-        if (fileInput.current) fileInput.current.click()
+        if (fileInput.current)
+            fileInput.current.click()
     }
+    const downloadBtnHandler = async () => {
+        if (!url) return
+        if (validator.isURL(url)) {
+            const response = await request(url)
+            if (response && response.ok) {
+                let data
+                switch (response.headers.get('content-type')) {
+                    case 'image/jpeg':
+                        addImage({
+                            url
+                        })
+                        setUrl('')
+                        break
+                    case 'application/json':
+                        data = await response.json()
+                        const images: Array<JsonImage> = data.galleryImages
+                        images.forEach(image => {
+                            addImage({
+                                url: image.url
+                            })
+                        })
+                }
+            } else {
+                setError('Unable to upload file')
+            }
+        } else {
+            setError('URL is not valid')
+        }
 
-    const inputOnChangeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
+    }
+    const fileInputOnChangeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
         event.preventDefault()
         if (event.target.files && event.target.files.length) {
-            setFiles(Array.from(event.target.files))
-            readAllFiles(event.target.files, setPreviews, startLoading, endLoading)
+            readAllFiles(event.target.files, addImage, toggleLoading)
         }
     }
+    const inputOnChangeHandler = (event: React.ChangeEvent<HTMLInputElement>) => {
+        event.preventDefault()
+        setUrl(event.target.value)
+    }
 
-    const deleteFile = useCallback((event: React.MouseEvent<HTMLDivElement>, id: number) => {
-        const newPreviews = previews.filter((_, idx) => idx !== id)
-        const newFiles = files.filter((_, idx) => idx !== id)
-        setPreviews(newPreviews)
-        setFiles(newFiles)
-    }, [files, previews])
+    const clearError = () => {
+        setError(null)
+    }
+    const toggleLoading = () => setLoading(prevState => !prevState)
 
     //drag-and-drop handlers
     const dragEnterHandler = (event: React.DragEvent) => {
@@ -79,124 +88,63 @@ export const FileUploader: React.FC<UploaderProps> = ({accept = acceptDefault, o
     }
     const dropHandler = (event: React.DragEvent) => {
         event.preventDefault()
-        // readAllFiles(event.dataTransfer.files, startLoading, endLoading)
+        readAllFiles(event.dataTransfer.files, addImage, toggleLoading)
         setDragEnter(false)
     }
 
-    function startLoading(length: number) {
-        setLoading({
-            state: true,
-            count: length
-        })
-    }
-
-    function endLoading() {
-        setLoading({
-            state: false,
-            count: 0
-        })
-    }
-
-    const uploadFiles = () => {
-        //call function to upload files
-        onUpload(files, showUploadProgress)
-        setUpload(true)
-        //disable Upload Btn on Upload
-        if (uploadBtn.current) uploadBtn.current.disabled = true
-    }
-
-    const showUploadProgress = (idx: number, progress: number) => {
-        setUploadProgress(prevState => {
-            let newState = prevState.slice()
-            newState[idx] = progress
-            return newState
-        })
-    }
-
-    const onEnteredHandler: onEnteredHandlerType = () => {
-        if (!container.current) return
-        performanceImagesGrid(container.current.childNodes)
-    }
-
-    const onExitedHandler: onExitedHandlerType = (node)=>{
-        renderGridAfterDeleteImage((node.firstChild as HTMLImageElement).alt)
-    }
-
     return (
-        <div className="upload_card">
-            {
-                dragEnter ?
-                    <div className="drop_area"
-                         onDragEnter={dragEnterHandler}
-                         onDragLeave={dragLeaveHandler}
-                         onDragOver={dragEnterHandler}
-                         onDrop={dropHandler}>
-                        Drop files here
-                    </div>
-                    :
-                    <div className="upload_card__wrapper"
-                         onDragEnter={dragEnterHandler}
-                         onDragLeave={dragLeaveHandler}
-                         onDragOver={dragEnterHandler}>
-                        <input type="file"
-                               multiple={true}
-                               accept={Array.isArray(accept) ? accept.join(',') : ''}
-                               ref={fileInput}
-                               onChange={inputOnChangeHandler}/>
-                        <div className="input_form">
-                            <input type="input"
-                                   ref={urlInput}
-                                   className="input_form__input"
-                                   placeholder="Введите URL изображения"
-                                   autoComplete="off"
-                                   id="url" required/>
-                            <label htmlFor="url"
-                                   className="input_form__label">
-                                Введите URL изображения
-                            </label>
+        <React.Fragment>
+            <Alert show={!!error} hideHandler={clearError}>
+                <h5 className="alert_header">{error}</h5>
+            </Alert>
+            <div className="upload_card">
+                {
+                    dragEnter ?
+                        <div className="drop_area"
+                             onDragEnter={dragEnterHandler}
+                             onDragLeave={dragLeaveHandler}
+                             onDragOver={dragEnterHandler}
+                             onDrop={dropHandler}>
+                            Drop files here
                         </div>
-                        <button className="btn"
-                                onClick={openBtnHandler}
-                                ref={openBtn}>Open
-                        </button>
-                        {previews.length ?
-                            <>
+                        :
+                        <div className="upload_card__wrapper"
+                             onDragEnter={dragEnterHandler}
+                             onDragLeave={dragLeaveHandler}
+                             onDragOver={dragEnterHandler}>
+                            <input type="file"
+                                   multiple={true}
+                                   accept={Array.isArray(accept) ? accept.join(',') : ''}
+                                   ref={fileInput}
+                                   onChange={fileInputOnChangeHandler}/>
+                            <div className="input_form">
+                                <input type="input"
+                                       className="input_form__input"
+                                       placeholder="Enter image or JSON URL"
+                                       autoComplete="off"
+                                       value={url}
+                                       onChange={inputOnChangeHandler}
+                                       id="url" required/>
+                                <label htmlFor="url"
+                                       className="input_form__label">
+                                    Enter image or JSON URL
+                                </label>
+                            </div>
+                            <div className="btn_wrapper">
                                 <button className="btn btn_primary"
-                                        onClick={uploadFiles}
-                                        ref={uploadBtn}>
-                                    Upload
+                                        onClick={downloadBtnHandler}
+                                        ref={downloadBtn}>Download
                                 </button>
-                            </>
-                            :
-                            loading.state ?
-                                <span className="loading">
-                                    {`File${loading.count > 1 ? 's are uploading' : ' is uploading'}...`}
-                                </span> :
-                                null
-                        }
-                        <div className="previews_container" ref={container}>
-                            <TransitionGroup component={null}>
-                                {previews.length && previews.map((image, idx) =>
-                                    <CSSTransition key={image.idx}
-                                                   timeout={300}
-                                                   unmountOnExit={true}
-                                                   onEntered={onEnteredHandler}
-                                                   onExited={onExitedHandler}
-                                                   classNames="preview_item_animation">
-                                        <UploaderPreview buffer={image.buffer}
-                                                         name={image.name}
-                                                         size={image.size}
-                                                         upload={upload}
-                                                         progress={uploadProgress[idx]}
-                                                         idx={idx}
-                                                         key={image.idx}
-                                                         deleteFile={deleteFile}/>
-                                    </CSSTransition>
-                                )}
-                            </TransitionGroup>
+                                <button className="btn"
+                                        onClick={openBtnHandler}
+                                        ref={openBtn}>Open file
+                                </button>
+                            </div>
+                            {loading && <span className="loading">Files are loading...</span>}
                         </div>
-                    </div>
-            }
-        </div>
+                }
+            </div>
+        </React.Fragment>
+
     )
 }

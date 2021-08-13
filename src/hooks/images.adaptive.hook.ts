@@ -32,7 +32,7 @@ export const useAdaptiveImages = (ref: React.RefObject<HTMLDivElement>, marginRi
 
     const breakpoints = [
         {
-            point: 370,
+            point: 320,
             count: 1,
         },
         {
@@ -48,7 +48,16 @@ export const useAdaptiveImages = (ref: React.RefObject<HTMLDivElement>, marginRi
     useEffect(() => {
         if (!ref.current) return
         setItems(Array.from(ref.current.childNodes))
+        document.body.onresize = onResizeBody
+        return () => {
+            document.body.onresize = null
+        }
     }, [ref.current])
+
+    const onResizeBody = () => {
+        if (!ref.current) return
+        setWidth(ref.current.clientWidth)
+    }
 
     useEffect(() => {
         if (!ref.current) return
@@ -148,7 +157,8 @@ export const useAdaptiveImages = (ref: React.RefObject<HTMLDivElement>, marginRi
     }
 
     function css(el: HTMLElement | null | undefined, styles = {}) {
-        if (el) Object.assign(el.style, styles, {opacity: 1})
+        if (el) Object.assign(el.style, styles)
+        if (el) setTimeout(() => Object.assign(el.style,{maxWidth: 'unset', opacity: 1}), 200)
     }
 
     function getCurrentCount() {

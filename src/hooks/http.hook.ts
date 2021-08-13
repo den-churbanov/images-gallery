@@ -15,18 +15,9 @@ export const useHttp = () => {
             const response = await fetch(url, {method, body, headers})
             setStatus(response.status)
             if (!response.ok) throw new Error('Произошла ошибка при загрузке данных')
-            let data
-            switch (response.headers.get('content-type')) {
-                case 'image/jpeg':
-                    data = URL.createObjectURL(await response.blob())
-                    break
-                default:
-                    data = await response.json()
-            }
-            return data
+            return response
         } catch (e) {
             setError(e.message)
-            console.log(error)
         } finally {
             setLoading(false)
         }

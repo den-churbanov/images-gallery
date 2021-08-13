@@ -4,7 +4,8 @@
 
 ## _How I came to my solution:_
 
-#### _Check current [Trello](https://trello.com/b/7Irt4fJv) board_
+#### _To check the task requirements, open the current [Trello](https://trello.com/b/7Irt4fJv) board_
+
 The task turned out to be much more difficult than I thought.
 
 I tried flex - and grid-markup, but did not get the desired result.
@@ -21,7 +22,7 @@ Having solved this system of equations, I found the coefficients
 for each image and applied flex markup expressed as a percentage, 
 as well several breakpoints.
 
-## _Available Scripts_
+## _Run and Build Scripts_
 
 In the project directory, you can run:
 
@@ -32,5 +33,5 @@ Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
 
 #### `npm run build`
 
-Builds the app for production to the `build` folder.\
+Builds the app for production to the `build` folder.
 It correctly bundles React in production mode and optimizes the build for the best performance.

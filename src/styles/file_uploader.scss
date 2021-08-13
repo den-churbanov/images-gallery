@@ -26,15 +26,16 @@
     letter-spacing: 0.04rem;
     text-decoration: none;
     text-transform: uppercase;
-    padding: .35rem 0.95rem 0.3rem;
+    text-align: center;
+    padding: .35rem 0.8rem 0.3rem;
     font-weight: 600;
     width: 30%;
-    min-width: 120px;
+    min-width: 130px;
     max-width: 140px;
     outline: none;
     background: #fff;
     cursor: pointer;
-    margin-right: 1rem;
+    margin-right: 0.4rem;
     margin-top: 0.5rem;
     
     @media screen and (max-width: $breakpoint-sm) {
@@ -74,6 +75,7 @@
     max-width: 250px;
     position: relative;
     padding: 15px 0 0;
+    margin-right: 0.4rem;
     
     @media screen and (max-width: $breakpoint-md) {
         width: 33vw;
@@ -84,10 +86,6 @@
         button.btn {
             width: 100%;
         }
-    }
-    
-    @media screen and (max-width: $breakpoint-sm) {
-        width: 50vw;
     }
     
     &__input {
@@ -146,6 +144,9 @@
     
     &__wrapper {
         width: 100%;
+        display: flex;
+        flex-flow: row wrap;
+        align-items: flex-end;
         padding: 0.6rem 0.7rem;
         
         .loading {
@@ -163,7 +164,11 @@
     }
 }
 
-
+h5.alert_header{
+    user-select: none;
+    font-size: 0.9rem;
+    font-family: "Work Sans";
+}
 
 @media (max-width: 780px) {
     .preview_item {

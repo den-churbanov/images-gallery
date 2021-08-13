@@ -32,18 +32,18 @@ body {
     margin: 0 auto;
 }
 
-h1.title{
+h1.title {
     color: $ice-blue;
     letter-spacing: 0.09rem;
     font-size: 1.5rem;
-    padding-top: 2rem;
+    padding-top: 0.5rem;
     padding-bottom: 1.6rem;
     margin: 0 auto;
     text-align: center;
     position: relative;
     overflow: visible;
     
-    &:before{
+    &:before {
         content: "";
         position: absolute;
         width: 120px;
@@ -82,9 +82,9 @@ h1.title{
         width: 3px;
     }
     
-    .preview_item_animation{
+    .preview_item_animation {
         &-enter {
-            -moz-opacity: 1;
+            -moz-opacity: 0;
             opacity: 0;
             -webkit-transition: 300ms ease-in;
             -moz-transition: 300ms ease-in;
@@ -121,8 +121,17 @@ h1.title{
         margin-bottom: 0.5%;
         margin-right: 1%;
         overflow: hidden;
+        max-width: 33.333%;
         -moz-opacity: 0;
         opacity: 0;
+        
+        @media screen and (max-width: $breakpoint-sm) {
+            max-width: 50%;
+        }
+        
+        @media screen and (max-width: $breakpoint-xs) {
+            max-width: 100%;
+        }
         
         &__remove {
             opacity: 0;
@@ -203,6 +212,8 @@ h1.title{
     }
 }
 
+@import "alert";
 @import "loader";
 @import "file_uploader";
 @import "gallery";
+@import "footer";

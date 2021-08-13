@@ -1,22 +1,25 @@
 import React from 'react'
-import {UrlPreviewType} from '../utils/types'
-import {bytesToSize} from '../utils/utils'
+import {GalleryFileImage, GalleryUrlImage} from '../utils/types'
 
-type GalleryPreviewProps = {
-    image: UrlPreviewType,
-    deleteFile: (event: React.MouseEvent, url: string) => void
+interface GalleryPreviewProps {
+    image: GalleryUrlImage | GalleryFileImage,
+    deleteImage: (event: React.MouseEvent, idx: string) => void
 }
 
-export const GalleryPreview: React.FC<GalleryPreviewProps> = ({image, deleteFile}) => {
+export const GalleryPreview: React.FC<GalleryPreviewProps> = ({image, deleteImage}) => {
+    if ((image as GalleryUrlImage).url)
+        return (
+            <div className="preview_item">
+                <img className="preview_item__image" src={(image as GalleryUrlImage).url} alt={image.idx}/>
+                <div className="preview_item__remove"
+                     onClick={event => deleteImage(event, image.idx)}>&times;</div>
+            </div>
+        )
     return (
         <div className="preview_item">
-            <img className="preview_item__image" src={image.url} alt={image.name}/>
+            <img className="preview_item__image" src={(image as GalleryFileImage).buffer} alt={image.idx}/>
             <div className="preview_item__remove"
-                 onClick={event => deleteFile(event, image.url)}>&times;</div>
-            <div className="preview_item__info">
-                <span>{image.name}</span>
-                <span>{bytesToSize(image.size)}</span>
-            </div>
+                 onClick={event => deleteImage(event, image.idx)}>&times;</div>
         </div>
     )
 }

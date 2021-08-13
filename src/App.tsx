@@ -1,52 +1,61 @@
-import React from 'react'
+import React, {useCallback, useEffect, useState} from 'react'
 import './styles/app.css'
+import {v1 as uuid} from 'uuid'
+import {GalleryFileImage, GalleryUrlImage, ImgData} from './utils/types'
 import {FileUploader} from './components/FileUploader'
 import {Gallery} from './components/Gallery'
-import firebase from 'firebase'
+import {getData} from './utils/defaultData'
+import {Footer} from './components/Footer'
 
-/** server storage emulation
- * **/
-// Your web app's Firebase configuration
-const firebaseConfig = {
-    apiKey: "AIzaSyDPg-E7U6xRShibqH6ptMbCed_jercNfvQ",
-    authDomain: "upload-files-9d7e9.firebaseapp.com",
-    projectId: "upload-files-9d7e9",
-    storageBucket: "upload-files-9d7e9.appspot.com",
-    messagingSenderId: "247597627595",
-    appId: "1:247597627595:web:9080a2f6ab6b87428b034e"
-};
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig)
-const storage = firebase.storage()
-/**
- * The upload function takes 3 parameters:
- * files - files to upload to the server,
- * showUploadProgress - a callback function that takes two parameters (file id and download percentage),
- * You can write your own server logic to load the data,
- * but it remains mandatory to call these two callback functions.
- * **/
-function onUpload(files: Array<File>,
-                  showUploadProgress: (idx: number, progress: number) => void) {
-    files.forEach((file, idx) => {
-        const ref = storage.ref(`images/${file.name}`)
-        const task = ref.put(file);
-        task.on('state_changed',
-            snapshot => {
-                const percentage = Math.round((snapshot.bytesTransferred / snapshot.totalBytes) * 100)
-                showUploadProgress(idx, percentage)
-            }, error => {
-                alert(error);
-            })
-    })
+interface ResponseData  {
+    galleryImages: Array<{
+        url: string,
+        width: number,
+        height: number
+    }>
 }
 
 export const App: React.FC = () => {
+    const [images, setImages] = useState<Array<GalleryUrlImage | GalleryFileImage>>([])
+
+    useEffect(() => {
+        fetchDefaultData()
+    }, [])
+
+    async function fetchDefaultData() {
+        const data: ResponseData = getData()
+        const images = data.galleryImages.map(image => ({idx: uuid(), ...image}))
+        setImages(images as Array<GalleryUrlImage | GalleryFileImage>)
+    }
+
+    const addImage = useCallback((data: ImgData) => {
+        if (data.buffer) {
+            setImages(prevState => [{
+                idx: uuid(),
+                buffer: data.buffer
+            } as GalleryFileImage , ...prevState])
+        }
+        if (data.url) {
+            setImages(prevState => [{
+                idx: uuid(),
+                url: data.url,
+                width: data.width,
+                height: data.height
+            } as GalleryUrlImage , ...prevState])
+        }
+    }, [setImages])
+
+    const deleteImage = useCallback((e: React.MouseEvent, id: string) => {
+        const newImages = images.filter(image => image.idx !== id)
+        setImages(newImages)
+    }, [setImages, images])
 
     return (
         <div className="page_container">
             <h1 className="title">Gallery</h1>
-            <FileUploader onUpload={onUpload}/>
-            <Gallery storage = {storage}/>
+            <FileUploader addImage={addImage}/>
+            <Gallery images={images} deleteImage={deleteImage}/>
+            <Footer/>
         </div>
     )
 }

@@ -1,0 +1,177 @@
+@import "colors";
+
+%display_flex {
+    display: -webkit-flex;
+    display: -moz-flex;
+    display: -ms-flex;
+    display: flex;
+}
+
+$bar-length: 0.7rem;
+$bar-thickness: 2px;
+
+.blur_window {
+    position: fixed;
+    opacity: 0;
+    top: -10px;
+    left: 0;
+    width: 100vw;
+    height: 102vh;
+    backdrop-filter: blur(3px);
+    @supports not (backdrop-filter: blur(3px)) {
+        background: rgba(40, 40, 40, 0.4);
+    }
+    @extend %display_flex;
+    -webkit-align-items: center;
+    align-items: center;
+    -webkit-justify-content: center;
+    justify-content: center;
+    z-index: 100;
+    
+    &-enter {
+        opacity: 0;
+        transform: translateY(-10px);
+        
+        &-active {
+            opacity: 1;
+            transform: translateY(0);
+            transition: all 500ms;
+        }
+        
+        &-done {
+            opacity: 1;
+        }
+    }
+    
+    &-exit {
+        opacity: 1;
+        transform: translateY(0);
+        
+        &-active {
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 500ms;
+        }
+        
+        &-done {
+            opacity: 0;
+        }
+    }
+}
+
+.message_block {
+    font-family: "Work Sans";
+    box-sizing: border-box;
+    text-align: center;
+    flex: 0 1 40%;
+    min-width: 290px;
+    max-width: 430px;
+    min-height: 90px;
+    padding: 0.35rem;
+    background: $ice-blue;
+    border: 2px solid $primary;
+    @extend %display_flex;
+    flex-direction: column;
+    border-radius: 4px;
+    
+    &__header {
+        @extend %display_flex;
+        position: relative;
+        justify-content: space-between;
+        align-items: center;
+        
+        &.cont_left {
+            justify-content: flex-end;
+        }
+        
+        p {
+            margin-left: 0.4rem;
+            font-size: 0.65rem;
+            letter-spacing: 0.05em;
+            color: $primary;
+        }
+        
+        .bars {
+            display: inline-block;
+            width: $bar-length;
+            height: $bar-length;
+            border-radius: 50%;
+            cursor: pointer;
+            
+            &.is-active {
+                z-index: 12;
+                
+                span {
+                    transform: rotate(-45deg);
+                    
+                    &:before,
+                    &:after {
+                        transform: translateX(0) rotate(-90deg);
+                    }
+                }
+            }
+            
+            & > span {
+                display: block;
+                position: absolute;
+                width: $bar-length;
+                height: $bar-thickness;
+                border-radius: 3px;
+                transition: 0.2s ease-in-out;
+                background: $primary;
+                top: 49%;
+                
+                &::before,
+                &::after {
+                    content: '';
+                    display: block;
+                    position: absolute;
+                    top: 0;
+                    left: 0;
+                    will-change: transform;
+                    width: $bar-length;
+                    height: $bar-thickness;
+                    background: $primary;
+                    border-radius: 3px;
+                    transition: 0.2s ease-in-out;
+                }
+                
+                @supports not (backdrop-filter: blur(5px)) {
+                    background: $ice-blue;
+                    
+                    &::before,
+                    &::after {
+                        background: $ice-blue;
+                    }
+                }
+                
+                &:before {
+                    transform: translateY(-8px);
+                }
+                
+                &:after {
+                    transform: translateY(8px);
+                }
+                
+            }
+        }
+    }
+    
+    &__content {
+        flex: 1 0 80%;
+        align-self: stretch;
+        padding: 0 0.2em 0.2em;
+        @extend %display_flex;
+        -webkit-align-items: center;
+        align-items: center;
+        -webkit-justify-content: center;
+        justify-content: center;
+        
+        span {
+            color: $primary;
+            font-size: 0.65em;
+            letter-spacing: 0.1em;
+            font-weight: bold;
+        }
+    }
+}
