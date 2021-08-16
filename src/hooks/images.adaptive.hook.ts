@@ -48,12 +48,12 @@ export const useAdaptiveImages = (ref: React.RefObject<HTMLDivElement>,
     ]
 
     useEffect(() => {
-        if (!ref.current) return
+        // if (!ref.current) return
         document.body.onresize = onResizeBody
         return () => {
             document.body.onresize = null
         }
-    }, [ref.current])
+    }, [])
 
     const onResizeBody = () => {
         if (!ref.current) return
@@ -145,11 +145,20 @@ export const useAdaptiveImages = (ref: React.RefObject<HTMLDivElement>,
         let k3 = CONTAINER_WIDTH / (image3.naturalWidth + (image3.naturalHeight / image1.naturalHeight) * (image1.naturalWidth + (image1.naturalHeight / image2.naturalHeight) * image2.naturalWidth))
         let k1 = k3 * (image3.naturalHeight / image1.naturalHeight)
         let k2 = k3 * (image3.naturalHeight / image2.naturalHeight)
-        image1.styles.width = `${(image1.naturalWidth * k1 - CONTAINER_WIDTH * margin) / CONTAINER_WIDTH * 100}%`
+        styles(image1, {
+            width: width(image1, k1)
+        })
+        // image1.styles.width = `${(image1.naturalWidth * k1 - CONTAINER_WIDTH * margin) / CONTAINER_WIDTH * 100}%`
         if (image1 !== image2)
-            image2.styles.width = `${(image2.naturalWidth * k2 - CONTAINER_WIDTH * margin) / CONTAINER_WIDTH * 100}%`
+            styles(image2, {
+                width: width(image2, k2)
+            })
+            // image2.styles.width = `${(image2.naturalWidth * k2 - CONTAINER_WIDTH * margin) / CONTAINER_WIDTH * 100}%`
         if (image1 !== image3)
-            image3.styles.width = `${(image3.naturalWidth * k3 - CONTAINER_WIDTH * margin) / CONTAINER_WIDTH * 100}%`
+            styles(image3, {
+                width: width(image3, k3)
+            })
+            // image3.styles.width = `${(image3.naturalWidth * k3 - CONTAINER_WIDTH * margin) / CONTAINER_WIDTH * 100}%`
     }
 
     function width(image: GalleryImage, k: number) {
