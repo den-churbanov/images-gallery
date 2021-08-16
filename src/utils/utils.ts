@@ -26,9 +26,15 @@ export const readAllFiles = (files: FileList | Array<File>,
     })
     promises.forEach(promise => {
         promise.then(data => {
-            addImage({
-                url: data.url
-            })
+            const img = new Image()
+            img.onload = function () {
+                addImage({
+                    url: data.url,
+                    height: img.naturalHeight,
+                    width: img.naturalWidth
+                })
+            }
+            img.src = data.url
         })
     })
     Promise.all(promises).then(_ => {

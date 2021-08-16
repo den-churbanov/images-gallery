@@ -9,16 +9,11 @@ import SVG from './svg-icons/social-icons-sprite.svg'
       export const ReactComponent: React.SFC<React.SVGProps<SVGSVGElement>>;
       const src: string;
       export default src;
+  }
+ * Otherwise, add the react-app-env.d.ts file on the ./src directory with the following contents:
+ * /// <reference types="react-scripts" />
  * more: https://duncanleung.com/typescript-module-declearation-svg-img-assets/
-}**/
-
-declare global {
-    namespace JSX {
-        interface IntrinsicElements {
-            Navigation: React.DetailedHTMLProps<React.HTMLAttributes<HTMLElement>, HTMLElement>;
-        }
-    }
-}
+**/
 
 type SocialLink = {
     href: string,

@@ -1,8 +1,7 @@
-import React, {useEffect, useRef} from 'react'
+import React, {useRef} from 'react'
 import {GalleryPreview} from './GalleryPreview'
 import {
-    GalleryFileImage,
-    GalleryUrlImage,
+    GalleryImage,
     onEnteredHandlerType,
     onExitedHandlerType
 } from '../utils/types'
@@ -10,29 +9,24 @@ import {useAdaptiveImages} from '../hooks/images.adaptive.hook'
 import {CSSTransition, TransitionGroup} from 'react-transition-group'
 
 interface GalleryProps {
-    images: Array<GalleryUrlImage | GalleryFileImage>,
+    images: Array<GalleryImage>,
+    setImages: (images: Array<GalleryImage>) => void,
     deleteImage: (e: React.MouseEvent, id: string) => void
 }
 
-export const Gallery: React.FC<GalleryProps> = ({images, deleteImage}) => {
+export const Gallery: React.FC<GalleryProps> = ({images, setImages, deleteImage}) => {
     const container = useRef<HTMLDivElement>(null)
-    const {performanceImagesGrid, renderGridAfterDeleteImage} = useAdaptiveImages(container)
+
+    const {performanceImagesGrid, renderGridAfterDeleteImage} = useAdaptiveImages(container, images, setImages)
 
     const onEnteredHandler: onEnteredHandlerType = () => {
-        if (!container.current) return
-        performanceImagesGrid(container.current.childNodes)
+        performanceImagesGrid()
     }
 
-    useEffect(() => {
-        if (container.current)
-            performanceImagesGrid(container.current.childNodes)
-    }, [container.current?.childNodes.length])
-
-    const onExitedHandler: onExitedHandlerType = (node) => {
-        renderGridAfterDeleteImage((node.firstChild as HTMLImageElement).alt)
+    const onExitedHandler: onExitedHandlerType = function (this: { idx: string }) {
+        renderGridAfterDeleteImage(images.filter(image => image.idx !== this.idx))
     }
 
-    console.log('Gallery rendered')
     return (
         <div className="gallery_container">
             <div className="gallery_container__wrapper">
@@ -44,7 +38,7 @@ export const Gallery: React.FC<GalleryProps> = ({images, deleteImage}) => {
                                            timeout={300}
                                            unmountOnExit={true}
                                            onEntered={onEnteredHandler}
-                                           onExited={onExitedHandler}
+                                           onExited={onExitedHandler.bind({idx: image.idx})}
                                            classNames="preview_item_animation">
                                 <GalleryPreview key={image.idx} image={image} deleteImage={deleteImage}/>
                             </CSSTransition>

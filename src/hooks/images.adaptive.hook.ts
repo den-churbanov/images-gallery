@@ -1,9 +1,12 @@
 import React, {useEffect, useState} from 'react'
+import {GalleryImage} from '../utils/types'
 
 /**
  * @name useAdaptiveImages
  * @version 1.1
  * @param ref - parent container which is limited in width (320-860px)
+ * @param images - state array of images
+ * @param setImages - dispatch state images function
  * @param marginRight - margin after items of grid
  * @author Churbanov Denis <churbanov.dv@gmail.com>
  *
@@ -12,27 +15,26 @@ import React, {useEffect, useState} from 'react'
  * forms a grid of images in which:
  * 1. The elements in each row are of the same height.
  * 2. The sum of the widths of all elements in each row (with margins) is equal to the width of the container.
- * IMPORTANT! The img tag must be the first child of the wrapper element.
- * IMPORTANT! The img tag must have an alt attribute.
  *
  * @return performanceImagesGrid - this function should be called every time the number of elements in the container has increased
  * @return renderGridAfterDeleteImage - this function should be called every time the
- * number of elements in the container has decreased.
- * The hook is called before React renders a new template, so the deleted element will remain
- * in the childNodes list of the container and the redrawing will be incorrect.
- * To avoid this, the function takes the deleted image as a parameter and deletes the DOM element with the alt attribute,
- * which is equal to the name of this image.
+ * number of elements in the container has decreased, accepts a new array without a deleted element as a parameter.
  */
 
-export const useAdaptiveImages = (ref: React.RefObject<HTMLDivElement>, marginRight = 0.01) => {
+type styleType = {
+    width: string,
+    marginRight?: string
+}
 
+export const useAdaptiveImages = (ref: React.RefObject<HTMLDivElement>,
+                                  images: Array<GalleryImage>,
+                                  setImages: (images: Array<GalleryImage>) => void,
+                                  margin = 0.01) => {
     const [CONTAINER_WIDTH, setWidth] = useState(0)
     const [CURRENT_COUNT, setCount] = useState<number | undefined>(0)
-    const [items, setItems] = useState<Array<ChildNode> | undefined>()
-
     const breakpoints = [
         {
-            point: 320,
+            point: 330,
             count: 1,
         },
         {
@@ -47,7 +49,6 @@ export const useAdaptiveImages = (ref: React.RefObject<HTMLDivElement>, marginRi
 
     useEffect(() => {
         if (!ref.current) return
-        setItems(Array.from(ref.current.childNodes))
         document.body.onresize = onResizeBody
         return () => {
             document.body.onresize = null
@@ -60,105 +61,99 @@ export const useAdaptiveImages = (ref: React.RefObject<HTMLDivElement>, marginRi
     }
 
     useEffect(() => {
-        if (!ref.current) return
-        setWidth(ref.current!.clientWidth)
+        onResizeBody()
     }, [ref.current?.clientWidth])
 
     useEffect(() => {
         calculate()
-    }, [items?.length, CURRENT_COUNT])
+    }, [CURRENT_COUNT])
 
     useEffect(() => {
         setCount(getCurrentCount())
     }, [CONTAINER_WIDTH])
 
-    function calculate() {
+    function calculate(imgs?: Array<GalleryImage>) {
+        let items = imgs ? imgs : images;
         switch (CURRENT_COUNT) {
             case 1:
-                oneColumn()
+                oneColumn(items)
                 break
             case 2:
-                twoColumns()
+                twoColumns(items)
                 break
             case 3:
-                threeColumns()
+                threeColumns(items)
                 break
         }
     }
 
-    function oneColumn() {
-        if (!items) return
-        for (let i = 0; i < items.length; i++) {
-            css(items[i].firstChild?.parentElement, {
-                margin: `0.5%`,
+    function oneColumn(images: Array<GalleryImage>) {
+        const copyImages = getDeepCopy(images)
+        for (let i = 0; i < copyImages.length; i++) {
+            styles(copyImages[i], {
                 width: `100%`
             })
         }
+        setImages(copyImages)
     }
 
-    function twoColumns() {
-        if (!items) return
-        for (let i = 0; i < items.length; i += 2) {
-            const first = items[i]?.firstChild?.parentElement
-            const second = items[i + 1]?.firstChild?.parentElement
+    function twoColumns(images: Array<GalleryImage>) {
+        const copyImages = getDeepCopy(images)
+        for (let i = 0; i < copyImages.length; i += 2) {
+            const first = copyImages[i]
+            const second = copyImages[i + 1]
             if (!second) twoGrid(first, first)
             twoGrid(first, second)
         }
+        setImages(copyImages)
     }
 
-    function threeColumns() {
-        if (!items) return
-        for (let i = 0; i < items.length; i += 3) {
-            const first = items[i]?.firstChild?.parentElement
-            const second = items[i + 1]?.firstChild?.parentElement
-            const third = items[i + 2]?.firstChild?.parentElement
-            if (!second) return threeGrid(first)
-            if (!third) return threeGrid(first, second)
+    function threeColumns(images: Array<GalleryImage>) {
+        const copyImages = getDeepCopy(images)
+        for (let i = 0; i < copyImages.length; i += 3) {
+            const first = copyImages[i]
+            const second = copyImages[i + 1]
+            const third = copyImages[i + 2]
+            if (!second) threeGrid(first)
+            if (!third) threeGrid(first, second)
             threeGrid(first, second, third)
         }
+        setImages(copyImages)
     }
 
-    type ElementType = HTMLElement | null | undefined
+    function getDeepCopy(item: any) {
+        return JSON.parse(JSON.stringify(item))
+    }
 
-    function twoGrid(it1: ElementType, it2: ElementType) {
-        if (!CONTAINER_WIDTH || !it1 || !it2) return
-        const im1 = it1.firstChild as HTMLImageElement
-        const im2 = it2.firstChild as HTMLImageElement
-        let k1 = CONTAINER_WIDTH / (im1.naturalWidth + (im1.naturalHeight / im2.naturalHeight) * im2.naturalWidth)
-        let k2 = k1 * (im1.naturalHeight / im2.naturalHeight)
-        css(it1, {
-            width: `${(im1.naturalWidth * k1 - CONTAINER_WIDTH * marginRight) / CONTAINER_WIDTH * 100}%`
+    function twoGrid(image1: GalleryImage, image2: GalleryImage) {
+        if (!CONTAINER_WIDTH || !image1 || !image2) return
+        let k1 = CONTAINER_WIDTH / (image1.naturalWidth + (image1.naturalHeight / image2.naturalHeight) * image2.naturalWidth)
+        let k2 = k1 * (image1.naturalHeight / image2.naturalHeight)
+        styles(image1, {
+            width: width(image1, k1)
         })
-        if (it1 !== it2)
-            css(it2, {
-                width: `${(im2.naturalWidth * k2 - CONTAINER_WIDTH * marginRight) / CONTAINER_WIDTH * 100}%`
+        if (image1 !== image2)
+            styles(image2, {
+                width: width(image2, k2)
             })
     }
 
-    function threeGrid(it1: ElementType, it2?: ElementType, it3?: ElementType) {
-        if (!CONTAINER_WIDTH || !it1) return
-        if (!it2) return twoGrid(it1, it1)
-        if (!it3) return twoGrid(it1, it2)
-        const im1 = it1.firstChild as HTMLImageElement
-        const im2 = it2.firstChild as HTMLImageElement
-        const im3 = it3.firstChild as HTMLImageElement
-        let k3 = CONTAINER_WIDTH / (im3.naturalWidth + (im3.naturalHeight / im1.naturalHeight) * (im1.naturalWidth + (im1.naturalHeight / im2.naturalHeight) * im2.naturalWidth))
-        let k1 = k3 * (im3.naturalHeight / im1.naturalHeight)
-        let k2 = k3 * (im3.naturalHeight / im2.naturalHeight)
-        css(it1, {
-            width: `${(im1.naturalWidth * k1 - CONTAINER_WIDTH * 0.01) / CONTAINER_WIDTH * 100}%`
-        })
-        css(it2, {
-            width: `${(im2.naturalWidth * k2 - CONTAINER_WIDTH * 0.01) / CONTAINER_WIDTH * 100}%`
-        })
-        css(it3, {
-            width: `${(im3.naturalWidth * k3 - CONTAINER_WIDTH * 0.01) / CONTAINER_WIDTH * 100}%`
-        })
+    function threeGrid(image1: GalleryImage, image2?: GalleryImage, image3?: GalleryImage) {
+        if (!CONTAINER_WIDTH || !image1) return
+        if (!image2) return twoGrid(image1, image1)
+        if (!image3) return twoGrid(image1, image2)
+        let k3 = CONTAINER_WIDTH / (image3.naturalWidth + (image3.naturalHeight / image1.naturalHeight) * (image1.naturalWidth + (image1.naturalHeight / image2.naturalHeight) * image2.naturalWidth))
+        let k1 = k3 * (image3.naturalHeight / image1.naturalHeight)
+        let k2 = k3 * (image3.naturalHeight / image2.naturalHeight)
+        image1.styles.width = `${(image1.naturalWidth * k1 - CONTAINER_WIDTH * margin) / CONTAINER_WIDTH * 100}%`
+        if (image1 !== image2)
+            image2.styles.width = `${(image2.naturalWidth * k2 - CONTAINER_WIDTH * margin) / CONTAINER_WIDTH * 100}%`
+        if (image1 !== image3)
+            image3.styles.width = `${(image3.naturalWidth * k3 - CONTAINER_WIDTH * margin) / CONTAINER_WIDTH * 100}%`
     }
 
-    function css(el: HTMLElement | null | undefined, styles = {}) {
-        if (el) Object.assign(el.style, styles)
-        if (el) setTimeout(() => Object.assign(el.style,{maxWidth: 'unset', opacity: 1}), 200)
+    function width(image: GalleryImage, k: number) {
+        return `${(image.naturalWidth * k - CONTAINER_WIDTH * margin) / CONTAINER_WIDTH * 100}%`
     }
 
     function getCurrentCount() {
@@ -171,19 +166,21 @@ export const useAdaptiveImages = (ref: React.RefObject<HTMLDivElement>, marginRi
         }
     }
 
-    const performanceImagesGrid = (items: NodeListOf<ChildNode> | Array<ChildNode> | undefined) => {
-        if (items instanceof NodeList)
-            setItems(Array.from(items))
-        if (items instanceof Array)
-            setItems(items)
+    function styles(image: GalleryImage, styles: styleType) {
+        image.styles = {
+            marginRight: `${margin * 100}%`,
+            ...styles,
+            maxWidth: 'unset',
+            opacity: 1
+        }
+    }
+
+    const performanceImagesGrid = () => {
         calculate()
     }
 
-    const renderGridAfterDeleteImage = (name: string) => {
-        if (!ref.current) return
-        performanceImagesGrid(Array.from(ref.current.childNodes).filter(node =>
-            (node.firstChild as HTMLImageElement).alt !== name
-        ))
+    const renderGridAfterDeleteImage = (images: Array<GalleryImage>) => {
+        calculate(images)
     }
 
     return {

@@ -2,7 +2,7 @@ import React, {useEffect} from 'react'
 import ReactDOM from 'react-dom'
 import {CSSTransition} from 'react-transition-group'
 
-interface IAlertParams {
+export interface IAlertParams {
     children?: React.ReactNode,
     show: boolean,
     header?: string,
@@ -24,9 +24,9 @@ export const Alert = ({children, show, hideHandler, header}: IAlertParams) => {
     return ReactDOM.createPortal(
         <CSSTransition in={show}
                        timeout={500}
-                       classNames="blur_window"
+                       classNames="alert__blur_window"
                        unmountOnExit>
-            <div className="blur_window">
+            <div className="alert__blur_window">
                 <div className="message_block">
                     <div className={`message_block__header${!header ? ' cont_left' : ''}`}>
                         {header ? <p>{header}</p> : null}

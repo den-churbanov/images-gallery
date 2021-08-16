@@ -3,13 +3,19 @@
 .svg-loader {
     width: 100%;
     height: 100%;
+    position: absolute;
+    display: -webkit-flex;
+    display: -moz-flex;
+    display: -ms-flex;
     display: flex;
+    -webkit-align-items: center;
     align-items: center;
+    -webkit-justify-content: center;
     justify-content: center;
     
     .svg-container {
-        height: 1.6rem;
-        width: 1.6rem;
+        height: 1.3rem;
+        width: 1.3rem;
         
         .loader-svg {
             position: absolute;

@@ -4,39 +4,47 @@
     visibility: hidden;
 }
 
+//drop
 .drop_area {
-    border-radius: 10px;
-    margin: 10px;
-    min-height: 100px;
     width: 100%;
-    border: 3px dashed $primary;
-    font-weight: bold;
-    color: $primary;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    padding: 0.3rem;
+    
+    &__container {
+        border-radius: 10px;
+        min-height: 100px;
+        width: 100%;
+        border: 3px dashed $primary;
+        font-weight: bold;
+        color: $primary;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
 }
 
 .btn {
-    color: $primary;
     position: relative;
     border-radius: 99px;
     border: 2px solid $primary;
+    color: $primary;
     font-size: 0.5rem;
     letter-spacing: 0.04rem;
     text-decoration: none;
     text-transform: uppercase;
     text-align: center;
-    padding: .35rem 0.8rem 0.3rem;
+    white-space: nowrap;
     font-weight: 600;
     width: 30%;
     min-width: 130px;
     max-width: 140px;
+    padding: .35rem 0.4rem 0.3rem;
+    margin-right: 0.4rem;
+    margin-top: 0.5rem;
     outline: none;
     background: #fff;
     cursor: pointer;
-    margin-right: 0.4rem;
-    margin-top: 0.5rem;
+    -webkit-tap-highlight-color: transparent;
     
     @media screen and (max-width: $breakpoint-sm) {
         margin-right: 0.2rem;
@@ -57,7 +65,7 @@
     }
 }
 
-@mixin box-mixin{
+@mixin box-mixin {
     margin: 0 auto;
     box-sizing: border-box;
     border-radius: 10px;
@@ -144,10 +152,16 @@
     
     &__wrapper {
         width: 100%;
+        padding: 0.3rem;
+    }
+    
+    //drop
+    &__content {
+        width: 100%;
         display: flex;
         flex-flow: row wrap;
         align-items: flex-end;
-        padding: 0.6rem 0.7rem;
+        padding: 0.5rem;
         
         .loading {
             letter-spacing: 0.04rem;
@@ -164,7 +178,7 @@
     }
 }
 
-h5.alert_header{
+h5.alert_header {
     user-select: none;
     font-size: 0.9rem;
     font-family: "Work Sans";

@@ -1,0 +1,124 @@
+@import "colors";
+
+%display_flex {
+    display: -webkit-flex;
+    display: -moz-flex;
+    display: -ms-flex;
+    display: flex;
+}
+
+@mixin transform($scale_value) {
+    -webkit-transform: scale($scale_value);
+    -moz-transform: scale($scale_value);
+    -ms-transform: scale($scale_value);
+    -o-transform: scale($scale_value);
+    transform: scale($scale_value);
+}
+
+$bar-length: 1rem;
+$bar-thickness: 3px;
+
+.alert__blur_window {
+    height: 100vh;
+    
+    &._alert_image_blur {
+        &-enter {
+            opacity: 0;
+            
+            &-active {
+                opacity: 1;
+                transition: all 300ms;
+            }
+            
+            &-done {
+                opacity: 1;
+            }
+        }
+        
+        &-exit {
+            opacity: 1;
+            
+            &-active {
+                opacity: 0;
+                transition: all 300ms;
+            }
+            
+            &-done {
+                opacity: 0;
+            }
+        }
+    }
+}
+
+.bars {
+    
+    &._alert_image_bars {
+        width: $bar-length;
+        height: $bar-length;
+        position: absolute;
+        right: 1.2rem;
+        top: 1.2rem;
+        
+        & > span {
+            width: $bar-length;
+            height: $bar-thickness;
+            border-radius: 50px;
+            
+            &::before,
+            &::after {
+                width: $bar-length;
+                height: $bar-thickness;
+                border-radius: 50px;
+            }
+        }
+    }
+}
+
+.alert_image_preview {
+    max-height: 85vh;
+    max-width: 70vw;
+    border: 2px solid $primary;
+    
+    @media screen and (max-width: $breakpoint-md){
+        max-width: 85vw;
+        max-height: 95vh;
+    }
+    
+    @media screen and (max-width: $breakpoint-sm){
+        max-width: 90vw;
+        max-height: 98vh;
+    }
+    
+    @media screen and (max-width: $breakpoint-xs){
+        max-width: 95vw;
+        max-height: 98vh;
+    }
+    
+    &-enter {
+        transition: all 1000ms;
+        @include transform(0);
+        
+        &-active {
+            @include transform(1);
+            
+        }
+        
+        &-done {
+            @include transform(1);
+        }
+    }
+    
+    &-exit {
+        @include transform(1);
+        
+        &-active {
+            @include transform(0);
+            transition: all 1000ms;
+        }
+        
+        &-done {
+            @include transform(0);
+        }
+    }
+}
+

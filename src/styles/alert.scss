@@ -10,7 +10,7 @@
 $bar-length: 0.7rem;
 $bar-thickness: 2px;
 
-.blur_window {
+.alert__blur_window {
     position: fixed;
     opacity: 0;
     top: -10px;
@@ -59,6 +59,71 @@ $bar-thickness: 2px;
     }
 }
 
+.bars {
+    display: inline-block;
+    width: $bar-length;
+    height: $bar-length;
+    border-radius: 50%;
+    cursor: pointer;
+    
+    &.is-active {
+        z-index: 12;
+        
+        span {
+            transform: rotate(-45deg);
+            
+            &:before,
+            &:after {
+                transform: translateX(0) rotate(-90deg);
+            }
+        }
+    }
+    
+    & > span {
+        display: block;
+        position: absolute;
+        width: $bar-length;
+        height: $bar-thickness;
+        border-radius: 3px;
+        transition: 0.2s ease-in-out;
+        background: $primary;
+        top: 49%;
+        
+        &::before,
+        &::after {
+            content: '';
+            display: block;
+            position: absolute;
+            top: 0;
+            left: 0;
+            will-change: transform;
+            width: $bar-length;
+            height: $bar-thickness;
+            background: $primary;
+            border-radius: 3px;
+            transition: 0.2s ease-in-out;
+        }
+        
+        @supports not (backdrop-filter: blur(5px)) {
+            background: $ice-blue;
+            
+            &::before,
+            &::after {
+                background: $ice-blue;
+            }
+        }
+        
+        &:before {
+            transform: translateY(-8px);
+        }
+        
+        &:after {
+            transform: translateY(8px);
+        }
+        
+    }
+}
+
 .message_block {
     font-family: "Work Sans";
     box-sizing: border-box;
@@ -91,70 +156,7 @@ $bar-thickness: 2px;
             color: $primary;
         }
         
-        .bars {
-            display: inline-block;
-            width: $bar-length;
-            height: $bar-length;
-            border-radius: 50%;
-            cursor: pointer;
-            
-            &.is-active {
-                z-index: 12;
-                
-                span {
-                    transform: rotate(-45deg);
-                    
-                    &:before,
-                    &:after {
-                        transform: translateX(0) rotate(-90deg);
-                    }
-                }
-            }
-            
-            & > span {
-                display: block;
-                position: absolute;
-                width: $bar-length;
-                height: $bar-thickness;
-                border-radius: 3px;
-                transition: 0.2s ease-in-out;
-                background: $primary;
-                top: 49%;
-                
-                &::before,
-                &::after {
-                    content: '';
-                    display: block;
-                    position: absolute;
-                    top: 0;
-                    left: 0;
-                    will-change: transform;
-                    width: $bar-length;
-                    height: $bar-thickness;
-                    background: $primary;
-                    border-radius: 3px;
-                    transition: 0.2s ease-in-out;
-                }
-                
-                @supports not (backdrop-filter: blur(5px)) {
-                    background: $ice-blue;
-                    
-                    &::before,
-                    &::after {
-                        background: $ice-blue;
-                    }
-                }
-                
-                &:before {
-                    transform: translateY(-8px);
-                }
-                
-                &:after {
-                    transform: translateY(8px);
-                }
-                
-            }
-        }
+        
     }
     
     &__content {

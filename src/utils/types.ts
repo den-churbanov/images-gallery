@@ -1,26 +1,21 @@
-export type JsonImage = {
+export type ImgData = {
     url: string,
     width: number,
     height: number
 }
 
-export type ImgData = {
-    url?: string,
-    width?: number,
-    height?: number,
-    buffer?: string
-}
-
-export type GalleryUrlImage = {
+export type GalleryImage = {
     idx: string,
     url: string,
-    width?: number,
-    height?: number
-}
+    naturalWidth: number,
+    naturalHeight: number,
+    styles: {
+        width?: string,
+        marginRight?: string,
+        maxWidth: string,
+        opacity: number
+    }
 
-export type GalleryFileImage = {
-    idx: string,
-    buffer: string
 }
 
 export type onEnteredHandlerType = (node: HTMLElement, isAppearing: boolean) => void
